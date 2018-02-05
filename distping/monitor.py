@@ -2,24 +2,38 @@ import time
 import logging
 
 import distping
+import config
 import fping
 
-def findTargetsInConfig(childNodes = None):
+def getTargets():
+    tree = config.getSharedConfigValue('targets')
     targets = []
     
-    if (childNodes == None):
-        childNodes = distping.getConfigValue('tree')
-    
-    for childNode in childNodes:
-        if ('nodes' in childNode):
-            targets = targets + findTargetsInConfig(childNode['nodes'])
-        else:
-            targets.append(childNode)
-
+    for group in tree:
+        targets = targets + group['targets']
+        
     return targets
 
+def getLatestValues():
+    result = {}
+        
+    for rec in (distping.database('time') > time.time() - (config.getSharedConfigValue('check.interval') * 1.2)):
+        result[rec['host']] = {
+            'host': rec['host'],
+            'status': rec['status'],
+            'time': rec['time'],
+            'sent': rec['sent'],
+            'received': rec['received'],
+            'loss': rec['loss'],
+            'min': rec['min'],
+            'avg': rec['avg'],
+            'max': rec['max']
+        }
+        
+    return result
+
 def executeCheck():
-    targets = findTargetsInConfig()
+    targets = getTargets()
     
     if (len(targets) == 0):
         logging.info('No targets available.')
@@ -48,7 +62,7 @@ def startMonitorThread():
     
     while (not distping.exitApplication):
         try:
-            if (lastCheck + distping.getConfigValue('check.interval') < time.time()):
+            if (lastCheck + config.getSharedConfigValue('check.interval') < time.time()):
                 lastCheck = time.time()
                 
                 logging.info('Perform a check...')

@@ -1,7 +1,8 @@
-config/config.json
+config/*.json
 data/db.pdl
 distping/__pycache__
 web/node_modules
 web/yarn.lock
 .project
 .pydevproject
+logs/*.log

@@ -7,10 +7,12 @@
         <title>DistPing v1.0.0</title>
         
         <link rel="stylesheet" href="/node_modules/bulma/css/bulma.css">
+        <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="/resources/css/distping.css">
         
         <script defer src="/node_modules/jquery/dist/jquery.min.js"></script>
-        <script defer src="/node_modules/@fortawesome/fontawesome/index.js"></script>
+        <script defer src="/node_modules/moment/min/moment.min.js"></script>
+        <script defer src="/node_modules/chart.js/dist/Chart.min.js"></script>
         <script defer src="/resources/js/distping.js"></script>
     </head>
     <body>
@@ -34,6 +36,15 @@
                             <a class="navbar-item" href="/">
                                 Home
                             </a>
+                            
+                            <div class="navbar-item has-dropdown is-hoverable targets-tree">
+                                <a class="navbar-link">
+                                  Targets
+                                </a>
+                            
+                                <div class="navbar-dropdown">
+                                </div>
+                            </div>
                             
                             <div class="navbar-item has-dropdown is-hoverable">
                                 <a class="navbar-link">
@@ -68,66 +79,55 @@
         </header>
         <section class="section">
             <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-            </div>
-        </section>
-        <section class="section">
-            <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-            </div>
-        </section>
-        <section class="section">
-            <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-            </div>
-        </section>
-        <section class="section">
-            <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-            </div>
-        </section>
-        <section class="section">
-            <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-            </div>
-        </section>
-        
-        <section class="section">
-            <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-            </div>
-        </section><section class="section">
-            <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
-            </div>
-        </section>
-        <section class="section">
-            <div class="container">
-                <h1 class="title">Hello World</h1>
-                <p class="subtitle">
-                    My first website with <strong>Bulma</strong>!
-                </p>
+                <div class="columns">
+                    <div class="column">
+                        <div class="distping-page" id="overview-page">
+                            <h1 class="title">Overview</h1>
+                            <nav class="level">
+                                <div class="level-item has-text-centered">
+                                    <div>
+                                        <p class="heading">Online</p>
+                                        <p class="title has-text-success">
+                                            <i class="fa fa-check-circle"></i>
+                                            <span class="counter-targets-online">0</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="level-item has-text-centered">
+                                    <div>
+                                        <p class="heading">Flapping</p>
+                                        <p class="title has-text-warning">
+                                            <i class="fa fa-check-circle"></i>
+                                            <span class="counter-targets-flapping">0</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="level-item has-text-centered">
+                                    <div>
+                                        <p class="heading">Offline</p>
+                                        <p class="title has-text-danger">
+                                            <i class="fa fa-check-circle"></i>
+                                            <span class="counter-targets-offline">0</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="level-item has-text-centered">
+                                    <div>
+                                      <p class="heading">Observers</p>
+                                      <p class="title has-text-info">
+                                          <i class="fa fa-user-secret"></i>
+                                          <span class="counter-observers">0/0</span>
+                                      </p>
+                                    </div>
+                                </div>
+                            </nav>
+                            
+                            <div class="targets-list">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </body>

@@ -1,13 +1,15 @@
 import subprocess
-import distping
 import os
 import time
 from distutils import spawn
 
+import distping
+import config
+
 def pingTargets(targets):
     fpingBinary = ''
     try:
-        fpingBinary = distping.getConfigValue('check.fpingBinary')
+        fpingBinary = config.getSharedConfigValue('check.fpingBinary')
     except KeyError as err:
         fpingBinary = ''
         
@@ -19,7 +21,7 @@ def pingTargets(targets):
         hosts.append(target['host'])
         
     # Ping the targets
-    result = subprocess.run([fpingBinary, '-c', str(distping.getConfigValue('check.numberOfPackets')), '-q'] + hosts, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    result = subprocess.run([fpingBinary, '-c', str(config.getSharedConfigValue('check.numberOfPackets')), '-q'] + hosts, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
     # Parse the raw results
     pingResults = parseRawResult(result.stdout.decode('utf-8'))
@@ -51,7 +53,7 @@ def parseRawResult(rawResult):
             'statistic': {
                 'sent': statisticValues[0],
                 'received': statisticValues[1],
-                'loss': statisticValues[2]
+                'loss': statisticValues[2].strip('%')
             },
             'timing': {
                 'min': 0,
@@ -60,8 +62,10 @@ def parseRawResult(rawResult):
             }
         }
         
-        if (pingResult['statistic']['sent'] != pingResult['statistic']['received']):
+        if (pingResult['statistic']['received'] == 0):
             pingResult['status'] = 'offline'
+        elif (pingResult['statistic']['sent'] != pingResult['statistic']['received']):
+            pingResult['status'] = 'flapping'
         else:
             pingResult['status'] = 'online'
         

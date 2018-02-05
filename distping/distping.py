@@ -5,50 +5,107 @@ import sys
 import os
 import time
 import logging
+import logging.config
 import threading
 import signal
+import argparse
 from pydblite import Base
 
 import distping
+import config
 import monitor
 import frontend
+import collector
 
+arguments = False
 exitApplication = False
-config = False
 database = None
 threads = { 
     'threadMonitor': monitor.startMonitorThread,
-    'threadFrontend': frontend.startFrontendThread
+    'threadFrontend': frontend.startFrontendThread,
+    'threadCollector': collector.startCollectorThread
 }
 processes = {}
 
 def getRootDirectory():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def loadConfig():
-    path = os.path.join(getRootDirectory(), 'config', 'config.json')
-    
-    if (not os.path.isfile(path)):
-        logging.error('Config file (' + path + ') not found.')
-        return
-    
-    with open(path) as configData:
-        distping.config = json.load(configData)
+def configureLogging():
+    loggingConfig = {
+        'version': 1,
+        'formatters': {
+            'void': {
+                'format': '[%(asctime)s] [%(levelname)s]\t%(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S'
+            },
+            'standard': {
+                'format': '[%(asctime)s] [%(levelname)s] %(name)s:\t%(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S'
+            },
+        },
+        'handlers': {},
+        'loggers': {}
+    }
+
+    if (config.getLocalConfigValue('server.logs.coreLogFile') != ''):
+        loggingConfig['handlers']['default'] = {
+            'level':'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'void',
+            'filename': config.getLocalConfigValue('server.logs.coreLogFile'),
+            'maxBytes': 10485760,
+            'backupCount': 20,
+            'encoding': 'utf8'
+        }
+    else:
+        loggingConfig['handlers']['default'] = {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'void',
+        }
         
-def getConfigValue(configPath):
-    if (distping.config == False):
-        return False
-    
-    config = distping.config
-    
-    pathParts = configPath.split('.')
-    for pathPart in pathParts:
-        if (pathPart not in config):
-            raise KeyError('Key "' + pathPart + '" not found in configuration.')
+    loggingConfig['loggers'][''] = {
+        'handlers': ['default'],
+        'level': 'DEBUG'
+    }
         
-        config = config[pathPart]
+    if (config.getLocalConfigValue('server.logs.accessLogFile') != ''):
+        loggingConfig['handlers']['cherrypy_access'] = {
+            'level':'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'standard',
+            'filename': config.getLocalConfigValue('server.logs.accessLogFile'),
+            'maxBytes': 10485760,
+            'backupCount': 20,
+            'encoding': 'utf8'
+        }
         
-    return config
+        loggingConfig['loggers']['cherrypy.access'] = {
+            'handlers': ['cherrypy_access'],
+            'level': 'INFO',
+            'propagate': False
+        }
+    
+    if (config.getLocalConfigValue('server.logs.errorLogFile') != ''):
+        loggingConfig['handlers']['cherrypy_error'] = {
+            'level':'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'void',
+            'filename': config.getLocalConfigValue('server.logs.errorLogFile'),
+            'maxBytes': 10485760,
+            'backupCount': 20,
+            'encoding': 'utf8'
+        }
+        
+        loggingConfig['loggers']['cherrypy.error'] = {
+            'handlers': ['cherrypy_error'],
+            'level': 'INFO',
+            'propagate': False
+        }
+        
+    logging.config.dictConfig(loggingConfig)
+    logging.debug('Logging configured')
+
 
 def startThreads():
     for threadName, threadFunction in threads.items():
@@ -73,10 +130,14 @@ def processSignal(signum, frame):
     logging.info('Received signal to stop the application.')
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(levelname)s]  %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    parser = argparse.ArgumentParser(description='Distributed ping tool.')
+    parser.add_argument('--config-dir', help='Set the config directory')
+    distping.arguments = parser.parse_args()
+
+    #configureLogging()
     
     logging.debug('Load configuration file...')
-    loadConfig()
+    config.loadConfigs()
     
     # Abort the execution if the config isn't loaded
     if (distping.config == False):
@@ -87,7 +148,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, processSignal)
         
     # Initialize database connection
-    distping.database = Base(distping.getConfigValue('directory.data'))
+    distping.database = Base(config.getLocalConfigValue('directory.data'))
     
     if (not distping.database.exists()):
         distping.database.create('time', 'host', 'status', 'sent', 'received', 'loss', 'min', 'avg', 'max')

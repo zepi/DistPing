@@ -1,0 +1,39 @@
+{
+    "version": "18.02.04.001",
+    "secretKey": "secret",
+    "check": {
+        "interval": 30,
+        "numberOfPackets": 4,
+        "analysisTimeInterval": 30
+    },
+    "observers": {
+        "observer1": {
+            "url": "ws://127.0.0.1:8680/ws"
+        },
+        "observer2": {
+            "url": "ws://127.0.0.2:8780/ws"
+        }
+    },
+    "targets": [
+        {
+            "name": "Test",
+            "targets": [
+                {
+                    "name": "test-server",
+                    "host": "server.test.com"
+                },
+        
+                {
+                    "name": "google.com",
+                    "host": "www.google.com"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "webhook",
+            "url": "http://test.ch/webhook?name=$name&host=$host&status=$status"
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "observerName": "observer1",
+    "server": {
+        "ipAddress": "0.0.0.0",
+        "port": 8680,
+        "ssl": {
+            "enabled": false,
+            "certificate": "",
+            "privateKey": "",
+            "certificateChain": ""
+        },
+        "logs": {
+            "coreLogFile": "/path-to/logs/core.log",
+            "accessLogFile": "/path-to/logs/access.log",
+            "errorLogFile": "/path-to/logs/error.log"
+        }
+    },
+    "directory": {
+        "data": "/path-to/data/db.pdl"
+    },
+    "users": {
+        "admin": "password"
+    }
+}
