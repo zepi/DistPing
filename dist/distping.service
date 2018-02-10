@@ -1,0 +1,15 @@
+[Unit]
+Description=DistPing
+After=syslog.target
+
+[Service]
+Type=simple
+User=distping
+Group=distping
+WorkingDirectory=/opt/DistPing
+ExecStart=/opt/DistPing/pmxsd/pmxsd.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
