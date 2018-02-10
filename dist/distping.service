@@ -7,7 +7,7 @@ Type=simple
 User=distping
 Group=distping
 WorkingDirectory=/opt/DistPing
-ExecStart=/opt/DistPing/pmxsd/pmxsd.py
+ExecStart=/opt/DistPing/distping/distping.py
 Restart=always
 RestartSec=3
 
