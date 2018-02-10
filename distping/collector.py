@@ -129,9 +129,9 @@ def getStatusByObservers(statusValues, numberOfObservers):
         down = statusCounted['flapping'] + statusCounted['offline']
         percentageDown = (100 / numberOfObservers) * down
         
-        if (percentageDown > 33.333):
+        if (percentageDown > 66.666):
             status = 'offline'
-        else:
+        elif (percentageDown > 33.333):
             status = 'flapping'
         
     return status
