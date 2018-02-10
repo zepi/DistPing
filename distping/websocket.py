@@ -10,6 +10,7 @@ import config
 import monitor
 import collector
 import websocket
+import status
 
 manager = WebSocketManager()
 
@@ -71,6 +72,10 @@ def executeServerRequest(socket, parsedMessage):
         collector.leader = parsedMessage['leader']
         
         socket.send(json.dumps({'response': 'leader_set'}))
+    elif (parsedMessage['command'] == 'set_status'):
+        status.statusData = parsedMessage['data']
+        
+        socket.send(json.dumps({'response': 'status_set'}))
     elif (parsedMessage['command'] == 'set_last_analysis'):
         collector.lastAnalysisTime = time.time() - parsedMessage['duration']
         
@@ -88,6 +93,7 @@ def executeClientRequest(socket, parsedMessage):
             collector.leader = parsedMessage['leader']
     elif (parsedMessage['response'] == 'latest_values'):
         logging.debug('Received latest values from {}.'.format(parsedMessage['observerName']))
+        
         collector.lastData[parsedMessage['observerName']] = parsedMessage['data']
     
 def sendCommandToSetNewLeader(newLeader):

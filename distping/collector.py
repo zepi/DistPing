@@ -8,6 +8,7 @@ import config
 import monitor
 import websocket
 import collector
+import status
 
 connections = {}
 leader = False
@@ -43,7 +44,7 @@ def analyzeTargets():
     for name, observerData in observers.items():
         if (name == config.getLocalConfigValue('observerName')):
             collector.lastData[name] = monitor.getLatestValues()
-        else:
+        elif (name in collector.connections):
             connection = collector.connections[name]
             connection.send(json.dumps({
                 'command': 'get_latest_values'
@@ -60,7 +61,9 @@ def analyzeTargets():
             waitForData = False
         
         time.sleep(0.2)
-        if (counter > 100):
+        counter = counter + 1
+        
+        if (counter > 50):
             logging.error('Not all observers sent their latest usage data. Process will continue without the data.')
             waitForData = False
     
@@ -106,9 +109,15 @@ def analyzeData(dataByTarget):
         avgValue = round(sum(avgValues) / numberOfObservers, 2)
         maxValue = round(sum(maxValues) / numberOfObservers, 2)
         lossValue = round(sum(lossValues) / numberOfObservers, 2)
-        status = getStatusByObservers(statusValues, numberOfObservers)
+        targetStatus = getStatusByObservers(statusValues, numberOfObservers)
         
-        print(targetKey + ': STATUS: ' + status + ' (min: ' + str(minValue) + ', avg: ' + str(avgValue) + ', max: ' + str(maxValue) + ', loss: ' + str(lossValue) + '%)')
+        status.setStatus(targetKey, targetStatus, {
+            'min': minValue,
+            'avg': avgValue,
+            'max': maxValue,
+            'loss': lossValue,
+            'observerData': observerValues
+        })
            
 def getStatusByObservers(statusValues, numberOfObservers):
     statusCounted = {'online': 0, 'flapping': 0, 'offline': 0}
@@ -144,11 +153,20 @@ def switchLeader(startTime):
         'duration': duration
     })
     
+    if (status.statusChanged):
+        setStatusCommand = json.dumps({
+            'command': 'set_status',
+            'data': status.statusData
+        })
+    
     for name in collector.connections:
         connection = collector.connections[name]
         
         connection.send(setLeaderCommand)
         connection.send(setLastAnalysisCommand)
+        
+        if (status.statusChanged):
+            connection.send(setStatusCommand)
     
 def getObserverRandomly():
     observers = config.getSharedConfigValue('observers')
@@ -166,8 +184,12 @@ def startCollectorThread():
             checkConnections()
             
             if (collector.leader == observerName and (lastAnalysisTime + analysisTimeInterval) < time.time()): 
-                logging.debug('It is time to analyse the data.')
+                logging.debug('Start analysis...')
                 analyzeTargets()
+                
+            if (collector.leader != observerName and (lastAnalysisTime + (2 * analysisTimeInterval)) < time.time()):
+                logging.debug('Leader did not collect the information. Taking control...')
+                switchLeader(time.time() - analysisTimeInterval)
                 
             if (collector.leader == False):
                 collector.leader = observerName

@@ -66,7 +66,7 @@ def configureLogging():
         
     loggingConfig['loggers'][''] = {
         'handlers': ['default'],
-        'level': 'DEBUG'
+        'level': config.getLocalConfigValue('server.logs.coreLogLevel')
     }
         
     if (config.getLocalConfigValue('server.logs.accessLogFile') != ''):
@@ -88,7 +88,7 @@ def configureLogging():
     
     if (config.getLocalConfigValue('server.logs.errorLogFile') != ''):
         loggingConfig['handlers']['cherrypy_error'] = {
-            'level':'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'void',
             'filename': config.getLocalConfigValue('server.logs.errorLogFile'),
@@ -136,6 +136,7 @@ if __name__ == '__main__':
 
     #configureLogging()
     
+    logging.info('DistPing started.')
     logging.debug('Load configuration file...')
     config.loadConfigs()
     
@@ -154,7 +155,8 @@ if __name__ == '__main__':
         distping.database.create('time', 'host', 'status', 'sent', 'received', 'loss', 'min', 'avg', 'max')
     else:
         distping.database.open()
-    
+        
+    logging.info('Start the threads.')
     startThreads()
     
     while (distping.exitApplication == False):

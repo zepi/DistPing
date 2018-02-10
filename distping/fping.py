@@ -51,9 +51,9 @@ def parseRawResult(rawResult):
             'target': key,
             'time': int(time.time()),
             'statistic': {
-                'sent': statisticValues[0],
-                'received': statisticValues[1],
-                'loss': statisticValues[2].strip('%')
+                'sent': int(statisticValues[0]),
+                'received': int(statisticValues[1]),
+                'loss': int(statisticValues[2].strip('%'))
             },
             'timing': {
                 'min': 0,

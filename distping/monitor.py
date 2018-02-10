@@ -4,6 +4,9 @@ import logging
 import distping
 import config
 import fping
+import monitor
+
+latestValues = {}
 
 def getTargets():
     tree = config.getSharedConfigValue('targets')
@@ -15,8 +18,11 @@ def getTargets():
     return targets
 
 def getLatestValues():
+    if (len(monitor.latestValues) > 0):
+        return monitor.latestValues
+    
     result = {}
-        
+    
     for rec in (distping.database('time') > time.time() - (config.getSharedConfigValue('check.interval') * 1.2)):
         result[rec['host']] = {
             'host': rec['host'],
@@ -54,6 +60,18 @@ def executeCheck():
             result['timing']['avg'], 
             result['timing']['max']
         )
+        
+        monitor.latestValues[result['target']] = {
+            'host': result['target'],
+            'status': result['status'],
+            'time': result['time'],
+            'sent': result['statistic']['sent'],
+            'received': result['statistic']['received'],
+            'loss': result['statistic']['loss'],
+            'min': result['timing']['min'],
+            'avg': result['timing']['avg'],
+            'max': result['timing']['max']
+        }
     
     distping.database.commit()
 
@@ -65,7 +83,7 @@ def startMonitorThread():
             if (lastCheck + config.getSharedConfigValue('check.interval') < time.time()):
                 lastCheck = time.time()
                 
-                logging.info('Perform a check...')
+                logging.debug('Perform a check...')
                 executeCheck()
             
             time.sleep(0.1)
