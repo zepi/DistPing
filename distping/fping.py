@@ -21,7 +21,7 @@ def pingTargets(targets):
         hosts.append(target['host'])
         
     # Ping the targets
-    result = subprocess.run([fpingBinary, '-c', str(config.getSharedConfigValue('check.numberOfPackets')), '-q'] + hosts, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    result = subprocess.run([fpingBinary, '-t', '1000', '-i', '200', '-c', str(config.getSharedConfigValue('check.numberOfPackets')), '-q'] + hosts, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
     # Parse the raw results
     pingResults = parseRawResult(result.stdout.decode('utf-8'))
