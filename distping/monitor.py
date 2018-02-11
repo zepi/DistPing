@@ -75,6 +75,16 @@ def executeCheck():
     
     distping.database.commit()
 
+def getStatusForLossValue(lossAverage):
+    status = 'online'
+    
+    if (lossAverage > float(config.getSharedConfigValue('analysis.thresholdDown'))):
+        status = 'offline'
+    elif (lossAverage > float(config.getSharedConfigValue('analysis.thresholdUnstable'))):
+        status = 'unstable'
+        
+    return status
+
 def startMonitorThread():
     lastCheck = 0
     

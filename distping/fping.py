@@ -5,6 +5,7 @@ from distutils import spawn
 
 import distping
 import config
+import monitor
 
 def pingTargets(targets):
     fpingBinary = ''
@@ -62,12 +63,7 @@ def parseRawResult(rawResult):
             }
         }
         
-        if (pingResult['statistic']['received'] == 0):
-            pingResult['status'] = 'offline'
-        elif (pingResult['statistic']['sent'] != pingResult['statistic']['received']):
-            pingResult['status'] = 'unstable'
-        else:
-            pingResult['status'] = 'online'
+        pingResult['status'] = monitor.getStatusForLossValue(pingResult['statistic']['loss'])
         
         if (len(splittedData) == 2):
             timingValues = getDataValues(splittedData[1].strip())

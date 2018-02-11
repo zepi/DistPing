@@ -110,7 +110,7 @@ def analyzeData(dataByTarget):
         avgValue = round(sum(avgValues) / numberOfObservers, 2)
         maxValue = round(sum(maxValues) / numberOfObservers, 2)
         lossValue = round(sum(lossValues) / numberOfObservers, 2)
-        targetStatus = getStatusByObservers(statusValues, numberOfObservers)
+        targetStatus = monitor.getStatusForLossValue(lossValue)
         
         status.setStatus(targetKey, targetStatus, {
             'min': minValue,
@@ -130,23 +130,6 @@ def analyzeData(dataByTarget):
             'loss': lossValue,
             'values': observerValues
         })
-           
-def getStatusByObservers(statusValues, numberOfObservers):
-    statusCounted = {'online': 0, 'unstable': 0, 'offline': 0}
-    for statusValue in statusValues:
-        statusCounted[statusValue] = statusCounted[statusValue] + 1
-    
-    status = 'online'
-    if (numberOfObservers > statusCounted['online']):
-        down = statusCounted['unstable'] + statusCounted['offline']
-        percentageDown = (100 / numberOfObservers) * down
-        
-        if (percentageDown > float(config.getSharedConfigValue('analysis.thresholdDown'))):
-            status = 'offline'
-        elif (percentageDown > float(config.getSharedConfigValue('analysis.thresholdUnstable'))):
-            status = 'unstable'
-        
-    return status
     
 def switchLeader(startTime):
     duration = time.time() - startTime
