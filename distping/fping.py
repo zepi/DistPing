@@ -65,7 +65,7 @@ def parseRawResult(rawResult):
         if (pingResult['statistic']['received'] == 0):
             pingResult['status'] = 'offline'
         elif (pingResult['statistic']['sent'] != pingResult['statistic']['received']):
-            pingResult['status'] = 'flapping'
+            pingResult['status'] = 'unstable'
         else:
             pingResult['status'] = 'online'
         

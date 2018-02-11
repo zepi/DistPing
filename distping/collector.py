@@ -9,6 +9,7 @@ import monitor
 import websocket
 import collector
 import status
+import actions
 
 connections = {}
 leader = False
@@ -118,21 +119,28 @@ def analyzeData(dataByTarget):
             'loss': lossValue,
             'observerData': observerValues
         })
+        
+        actions.executeActions('target-analysis-finished', {
+            'targetKey': targetKey,
+            'status': targetStatus,
+            'time': time.time(),
+            'values': observerValues
+        })
            
 def getStatusByObservers(statusValues, numberOfObservers):
-    statusCounted = {'online': 0, 'flapping': 0, 'offline': 0}
+    statusCounted = {'online': 0, 'unstable': 0, 'offline': 0}
     for statusValue in statusValues:
         statusCounted[statusValue] = statusCounted[statusValue] + 1
     
     status = 'online'
     if (numberOfObservers > statusCounted['online']):
-        down = statusCounted['flapping'] + statusCounted['offline']
+        down = statusCounted['unstable'] + statusCounted['offline']
         percentageDown = (100 / numberOfObservers) * down
         
-        if (percentageDown > 66.666):
+        if (percentageDown > config.getSharedConfigValue('analysis.thresholdDown')):
             status = 'offline'
-        elif (percentageDown > 33.333):
-            status = 'flapping'
+        elif (percentageDown > config.getSharedConfigValue('analysis.thresholdUnstable')):
+            status = 'unstable'
         
     return status
     
@@ -176,7 +184,7 @@ def getObserverRandomly():
 def startCollectorThread():
     time.sleep(2)
     
-    analysisTimeInterval = config.getSharedConfigValue('check.analysisTimeInterval')
+    analysisTimeInterval = config.getSharedConfigValue('analysis.timeInterval')
     observerName = config.getLocalConfigValue('observerName')
     
     while (not distping.exitApplication):

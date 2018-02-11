@@ -3,8 +3,12 @@
     "secretKey": "secret",
     "check": {
         "interval": 30,
-        "numberOfPackets": 4,
-        "analysisTimeInterval": 30
+        "numberOfPackets": 4
+    },
+    "analysis": {
+        "timeInterval": 30,
+        "thresholdDown": 60,
+        "thresholdUnstable": 40
     },
     "observers": {
         "observer1": {
@@ -16,11 +20,11 @@
     },
     "targets": [
         {
-            "name": "Test",
+            "name": "Example Group",
             "targets": [
                 {
-                    "name": "test-server",
-                    "host": "server.test.com"
+                    "name": "Example Website",
+                    "host": "www.example.com"
                 },
         
                 {
@@ -32,8 +36,17 @@
     ],
     "actions": [
         {
+            "event": "target-analysis-finished",
             "type": "webhook",
-            "url": "http://test.ch/webhook?name=$name&host=$host&status=$status"
+            "name": "Example Collector",
+            "url": "http://example.com/webhook-collect"
+        },
+        {
+            "event": "status-changed",
+            "type": "webhook",
+            "contentType": "json",
+            "name": "Example Alert",
+            "url": "http://example.com/webhook-alert"
         }
     ]
 }

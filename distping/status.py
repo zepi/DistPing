@@ -29,6 +29,7 @@ def setStatus(targetKey, newStatus, values):
         return
     
     actions.executeActions('status-changed', {
+        'targetKey': targetKey,
         'oldStatus': oldStatus,
         'newStatus': newStatus,
         'time': status.statusData[targetKey]['statusSince'],

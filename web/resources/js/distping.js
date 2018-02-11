@@ -247,7 +247,7 @@ function loadLatestHistory()
 function refreshStatistics()
 {
     var counterOnline = 0;
-    var counterFlapping = 0;
+    var counterUnstable = 0;
     var counterOffline = 0;
     $.post('/data/get_latest_values/', { }, function (responseData) {
         for (var key in responseData) {
@@ -255,8 +255,8 @@ function refreshStatistics()
             
             if (target.status == 'online') {
                 counterOnline++;
-            } else if (target.status == 'flapping') {
-                counterFlapping++;
+            } else if (target.status == 'unstable') {
+                counterUnstable++;
             } else if (target.status == 'offline') {
                 counterOffline++;
             }
@@ -265,7 +265,7 @@ function refreshStatistics()
         }
         
         $('.counter-targets-online').text(counterOnline);
-        $('.counter-targets-flapping').text(counterFlapping);
+        $('.counter-targets-unstable').text(counterUnstable);
         $('.counter-targets-offline').text(counterOffline);
     }, 'json');
 }
@@ -405,7 +405,7 @@ function updateCardData(card, targetData, defaultValues)
         
         if (targetData.status == 'online') {
             iconClasses = 'fa-check-circle has-text-success';
-        } else if (targetData.status == 'flapping') {
+        } else if (targetData.status == 'unstable') {
             iconClasses = 'fa-exclamation-circle has-text-warning';
         } else if (targetData.status == 'offline') {
             iconClasses = 'fa-times-circle has-text-danger';
