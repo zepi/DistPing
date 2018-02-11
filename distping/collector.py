@@ -137,9 +137,9 @@ def getStatusByObservers(statusValues, numberOfObservers):
         down = statusCounted['unstable'] + statusCounted['offline']
         percentageDown = (100 / numberOfObservers) * down
         
-        if (percentageDown > config.getSharedConfigValue('analysis.thresholdDown')):
+        if (percentageDown > float(config.getSharedConfigValue('analysis.thresholdDown'))):
             status = 'offline'
-        elif (percentageDown > config.getSharedConfigValue('analysis.thresholdUnstable')):
+        elif (percentageDown > float(config.getSharedConfigValue('analysis.thresholdUnstable'))):
             status = 'unstable'
         
     return status
