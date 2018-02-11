@@ -38,6 +38,7 @@
         {
             "event": "target-analysis-finished",
             "type": "webhook",
+            "contentType": "json",
             "name": "Example Collector",
             "url": "http://example.com/webhook-collect"
         },

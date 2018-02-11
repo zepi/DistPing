@@ -122,8 +122,12 @@ def analyzeData(dataByTarget):
         
         actions.executeActions('target-analysis-finished', {
             'targetKey': targetKey,
-            'status': targetStatus,
             'time': time.time(),
+            'status': targetStatus,
+            'min': minValue,
+            'avg': avgValue,
+            'max': maxValue,
+            'loss': lossValue,
             'values': observerValues
         })
            
