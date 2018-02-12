@@ -268,6 +268,10 @@ function refreshStatistics()
         $('.counter-targets-unstable').text(counterUnstable);
         $('.counter-targets-offline').text(counterOffline);
     }, 'json');
+    
+    $.post('/data/get_observer_connections/', { }, function (responseData) {
+        $('#overview-page .counter-observers').text(responseData.connected + '/' + responseData.total); 
+    }, 'json');
 }
 
 function addTargetsPanelElement(element)

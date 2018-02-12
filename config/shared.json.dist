@@ -3,7 +3,9 @@
     "secretKey": "secret",
     "check": {
         "interval": 30,
-        "numberOfPackets": 4
+        "numberOfPackets": 4,
+        "initialTimeout": 1000,
+        "packetInterval": 200
     },
     "analysis": {
         "timeInterval": 30,

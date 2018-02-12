@@ -15,6 +15,12 @@ connections = {}
 leader = False
 lastAnalysisTime = 0
 
+def getConnectionStatistics():
+    return {
+        'total': len(config.getSharedConfigValue('observers')),
+        'connected': len(collector.connections) + 1 # Add 1 for this process because we are also an observer connection
+    }
+
 def checkConnections():
     for name, observerData in config.getSharedConfigValue('observers').items():
         if (name == config.getLocalConfigValue('observerName')):

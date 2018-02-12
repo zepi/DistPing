@@ -96,6 +96,6 @@ def startMonitorThread():
                 logging.debug('Perform a check...')
                 executeCheck()
             
-            time.sleep(0.1)
+            time.sleep(1)
         except KeyboardInterrupt as err:
             return

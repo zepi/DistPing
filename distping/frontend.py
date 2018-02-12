@@ -6,6 +6,7 @@ import logging
 
 import distping
 import config
+import collector
 import monitor
 from websocket import DistPingServer
 
@@ -25,6 +26,11 @@ class DistPingDataFrontend(object):
         result = config.getSharedConfigValue('targets')
        
         return result
+    
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def get_observer_connections(self):
+        return collector.getConnectionStatistics()
     
     @cherrypy.expose
     @cherrypy.tools.json_out()
@@ -138,4 +144,8 @@ def startFrontendThread():
             # Auth
             'tools.auth_basic.on': False,
         },
+        '/favicon.ico': {
+            'tools.staticfile.on': True,
+            'tools.staticfile.filename': distping.getRootDirectory() + '/web/resources/img/favicon.ico'
+        }
     })

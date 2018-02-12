@@ -1,12 +1,16 @@
 import json
 import requests
 import logging
+import time
 
 import distping
 import config
 
 def executeActions(eventName, data):
     actions = config.getSharedConfigValue('actions')
+    
+    data['sender'] = config.getLocalConfigValue('observerName')
+    data['sendTime'] = time.time()
     
     for action in actions:
         if (action['event'] == eventName):
