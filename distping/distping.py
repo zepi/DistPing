@@ -129,6 +129,8 @@ def processSignal(signum, frame):
     distping.exitApplication = True
     logging.info('Received signal to stop the application.')
 
+    time.sleep(2)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Distributed ping tool.')
     parser.add_argument('--config-dir', help='Set the config directory')
@@ -149,7 +151,13 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, processSignal)
         
     # Initialize database connection
-    distping.database = Base(config.getLocalConfigValue('directory.data'))
+    try:
+        distping.database = Base(config.getLocalConfigValue('directory.data'))
+    except EOFError:
+        logging.error('Database file is corrupt. Will remove and reinitialize the database.')
+        
+        os.remove(config.getLocalConfigValue('directory.data'))
+        distping.database = Base(config.getLocalConfigValue('directory.data'))
     
     if (not distping.database.exists()):
         distping.database.create('time', 'host', 'status', 'sent', 'received', 'loss', 'min', 'avg', 'max')

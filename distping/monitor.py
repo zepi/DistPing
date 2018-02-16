@@ -73,7 +73,8 @@ def executeCheck():
             'max': result['timing']['max']
         }
     
-    distping.database.commit()
+    if (not distping.exitApplication):
+        distping.database.commit()
 
 def getStatusForLossValue(lossAverage):
     status = 'online'
