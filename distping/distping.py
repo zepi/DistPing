@@ -9,7 +9,6 @@ import logging.config
 import threading
 import signal
 import argparse
-from pydblite import Base
 
 import distping
 import config
@@ -149,21 +148,7 @@ if __name__ == '__main__':
     # Signals
     signal.signal(signal.SIGINT, processSignal)
     signal.signal(signal.SIGTERM, processSignal)
-        
-    # Initialize database connection
-    try:
-        distping.database = Base(config.getLocalConfigValue('directory.data'))
-    except EOFError:
-        logging.error('Database file is corrupt. Will remove and reinitialize the database.')
-        
-        os.remove(config.getLocalConfigValue('directory.data'))
-        distping.database = Base(config.getLocalConfigValue('directory.data'))
     
-    if (not distping.database.exists()):
-        distping.database.create('time', 'host', 'status', 'sent', 'received', 'loss', 'min', 'avg', 'max')
-    else:
-        distping.database.open()
-        
     logging.info('Start the threads.')
     startThreads()
     

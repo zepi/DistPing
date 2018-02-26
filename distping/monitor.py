@@ -18,25 +18,10 @@ def getTargets():
     return targets
 
 def getLatestValues():
-    if (len(monitor.latestValues) > 0):
-        return monitor.latestValues
+    if (len(monitor.latestValues) == 0):
+        return {}
     
-    result = {}
-    
-    for rec in (distping.database('time') > time.time() - (config.getSharedConfigValue('check.interval') * 1.2)):
-        result[rec['host']] = {
-            'host': rec['host'],
-            'status': rec['status'],
-            'time': rec['time'],
-            'sent': rec['sent'],
-            'received': rec['received'],
-            'loss': rec['loss'],
-            'min': rec['min'],
-            'avg': rec['avg'],
-            'max': rec['max']
-        }
-        
-    return result
+    return monitor.latestValues
 
 def executeCheck():
     targets = getTargets()
@@ -49,18 +34,6 @@ def executeCheck():
 
     # Save the results in the local database    
     for result in results:
-        distping.database.insert(
-            result['time'], 
-            result['target'], 
-            result['status'], 
-            result['statistic']['sent'], 
-            result['statistic']['received'], 
-            result['statistic']['loss'], 
-            result['timing']['min'], 
-            result['timing']['avg'], 
-            result['timing']['max']
-        )
-        
         monitor.latestValues[result['target']] = {
             'host': result['target'],
             'status': result['status'],
@@ -72,9 +45,6 @@ def executeCheck():
             'avg': result['timing']['avg'],
             'max': result['timing']['max']
         }
-    
-    if (not distping.exitApplication):
-        distping.database.commit()
 
 def getStatusForLossValue(lossAverage):
     status = 'online'

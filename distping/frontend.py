@@ -7,85 +7,30 @@ import logging
 import distping
 import config
 import collector
+import template
 import monitor
 from websocket import DistPingServer
 
 class DistPingFrontend(object):
     @cherrypy.expose
     def index(self):
-        raise cherrypy.HTTPRedirect('/index.html')
+        raise cherrypy.HTTPRedirect('/status')
+    
+    @cherrypy.expose
+    def status(self):
+        statusNumbers = countTargetsByStatus()
+        
+        return template.renderTemplate(
+            'pages/index.html',
+            statusNumbers=statusNumbers,
+            observerConnections=collector.getConnectionStatistics(), 
+            targets=config.getSharedConfigValue('targets'), 
+            latestValues=monitor.getLatestValues()
+        )
     
     @cherrypy.expose
     def ws(self):
         handler = cherrypy.request.ws_handler
-
-class DistPingDataFrontend(object):
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def get_targets(self):
-        result = config.getSharedConfigValue('targets')
-       
-        return result
-    
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def get_observer_connections(self):
-        return collector.getConnectionStatistics()
-    
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def get_latest_values(self):
-        return monitor.getLatestValues()
-    
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def get_latest_history(self, duration=900):
-        result = {}
-        
-        for rec in (distping.database('time') > time.time() - int(duration)):
-            key = rec['host']
-            if (key not in result):
-                result[key] = []
-            
-            result[rec['host']].append({
-                'host': rec['host'],
-                'status': rec['status'],
-                'time': rec['time'],
-                'sent': rec['sent'],
-                'received': rec['received'],
-                'loss': rec['loss'],
-                'min': rec['min'],
-                'avg': rec['avg'],
-                'max': rec['max']
-            })
-            
-        for key in result:
-            result[key] = sorted(result[key], key=sortByTime)
-            
-        return result
-    
-    @cherrypy.expose
-    @cherrypy.tools.json_out()
-    def get_history(self, host, duration=3600):
-        result = []
-        
-        for rec in (distping.database('time') > time.time() - int(duration)) & (distping.database('host') == host):
-            result.append({
-                'host': rec['host'],
-                'status': rec['status'],
-                'time': rec['time'],
-                'sent': rec['sent'],
-                'received': rec['received'],
-                'loss': rec['loss'],
-                'min': rec['min'],
-                'avg': rec['avg'],
-                'max': rec['max']
-            })
-            
-        return sorted(result, key=lambda entry: entry['time'])
-    
-def sortByTime(element):
-    return element['time']
 
 def validateUsernameAndPassword(realm, username, password):
     users = config.getLocalConfigValue('users')
@@ -95,7 +40,21 @@ def validateUsernameAndPassword(realm, username, password):
    
     return False
     
+def countTargetsByStatus():
+    numbers = {
+        'online': 0,
+        'unstable': 0,
+        'offline': 0
+    }
+    
+    for data in monitor.getLatestValues().values():
+        numbers[data['status']] = numbers[data['status']] + 1
+    
+    return numbers
+    
 def startFrontendThread():
+    template.initializeTemplateSystem()
+    
     cherrypy.config.update({
         'server.socket_host': config.getLocalConfigValue('server.ipAddress'), 
         'server.socket_port': config.getLocalConfigValue('server.port'),
@@ -121,7 +80,6 @@ def startFrontendThread():
 
     
     distPingFrontend = DistPingFrontend()
-    distPingFrontend.data = DistPingDataFrontend()
     
     WebSocketPlugin(cherrypy.engine).subscribe()
     cherrypy.tools.websocket = WebSocketTool()

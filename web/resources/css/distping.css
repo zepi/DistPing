@@ -2,28 +2,11 @@
     height: 40px;
 }
 
-.table-loader {
-    display: none;
-}
-
-.card .card-image .image {
-    background: #F8F8F8;
-}
-
-.card .card-icon .fa {
-    font-size: 48px;
-}
-
-.card .card-content .media-content { 
-    overflow: visible; 
-}
-
 .target-group {
     margin-top: 3rem;
     margin-bottom: 4rem;
 }
 
-.title.title-status-table {
-    margin-top: 1.5rem;
-    margin-bottom: 0.4rem;
+.target-row:nth-child(odd) {
+    background: hsl(0, 0%, 96%);
 }

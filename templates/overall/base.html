@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        
+        <title>DistPing v0.1</title>
+        
+        <link rel="stylesheet" href="/node_modules/bulma/css/bulma.css">
+        <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/resources/css/distping.css">
+        
+        <script defer src="/node_modules/jquery/dist/jquery.min.js"></script>
+        <script defer src="/node_modules/moment/min/moment.min.js"></script>
+        <script defer src="/resources/js/distping.js"></script>
+    </head>
+    <body>
+        <header>
+            <nav class="navbar is-fixed-top is-light" role="navigation" aria-label="main navigation">
+                <div class="container">
+                    <div class="navbar-brand">
+                        <a class="navbar-item" href="/index.html">
+                            <img src="/resources/img/logo.svg" alt="DistPing" class="distping-logo">
+                        </a>
+                        
+                        <div class="navbar-burger burger" data-target="distpingNavbar">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                    
+                    <div id="distpingNavbar" class="navbar-menu">
+                        <div class="navbar-start">
+                            <a class="navbar-item" href="/">
+                                Home
+                            </a>
+                            
+                            <div class="navbar-item has-dropdown is-hoverable targets-tree">
+                                <a class="navbar-link">
+                                  Targets
+                                </a>
+                            
+                                <div class="navbar-dropdown">
+                                </div>
+                            </div>
+                            
+                            <div class="navbar-item has-dropdown is-hoverable">
+                                <a class="navbar-link">
+                                  Settings
+                                </a>
+                            
+                                <div class="navbar-dropdown">
+                                    <a class="navbar-item">
+                                        Users
+                                    </a>
+                                    <a class="navbar-item">
+                                        Targets
+                                    </a>
+                                    <a class="navbar-item">
+                                        Observers
+                                    </a>
+                                    <a class="navbar-item">
+                                        Actions
+                                    </a>
+                                    <hr class="navbar-divider">
+                                    <div class="navbar-item">
+                                        Version 0.1
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="navbar-end">
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <section class="section">
+            <div class="container">
+                ${self.body()}
+            </div>
+        </section>
+    </body>
+</html>

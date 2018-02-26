@@ -1,0 +1,138 @@
+<%inherit file="/overall/base.html"/>
+
+<%def name="drawCategory(category)" cached="False">
+    <div class="target-group">
+        <h3 class="title">${category['name']}</h3>
+        
+        % for target in category['targets']:
+            <%
+                if target['host'] in latestValues:
+                    values = latestValues[target['host']]
+                else:
+                    values = {
+                        'min': 0,
+                        'avg': 0,
+                        'max': 0,
+                        'loss': 0
+                    }
+                endif
+            %>
+            
+            ${drawTargetRow(target['host'], target, values)}
+        % endfor
+    </div>
+</%def>
+
+<%def name="drawTargetRow(targetKey, target, latestValues)" cached="False">
+    <div class="columns target-row">
+        <div class="column is-narrow">
+            <i class="fa fa-check-circle is-size-1
+                    % if latestValues['loss']==100:
+                        has-text-danger
+                    % elif latestValues['loss']>0:
+                        has-text-warning
+                    % else:
+                        has-text-success
+                    % endif
+                ">
+            </i>
+        </div>
+        <div class="column is-one-quarter">
+            <p class="title is-marginless is-size-4">${target['name']}</p>
+            <p class="is-size-6 has-text-grey">
+                ${target['host']}
+                % if 'address' in target:
+                    <span class="has-text-grey-light">(${target['address']})</span>
+                % endif
+            </p>
+        </div>
+        <div class="column has-text-centered">
+            <p class="is-size-4">
+                ${latestValues['min']} ms
+            </p>
+            <p class="is-uppercase is-size-6 has-text-grey">Min</p>
+        </div>
+        <div class="column has-text-centered">
+            <p class="is-size-4 has-text-weight-semibold">
+                ${latestValues['avg']} ms
+            </p>
+            <p class="is-uppercase is-size-6 has-text-grey">Avg</p>
+        </div>
+        <div class="column has-text-centered">
+            <p class="is-size-4">
+                ${latestValues['max']} ms
+            </p>
+            <p class="is-uppercase is-size-6 has-text-grey">Max</p>
+        </div>
+        <div class="column has-text-centered">
+            <p class="is-size-4
+                    % if latestValues['loss']==100:
+                        has-text-danger
+                    % elif latestValues['loss']>0:
+                        has-text-warning
+                    % else:
+                        has-text-success
+                    % endif
+                ">
+                ${latestValues['loss']}%
+            </p>
+            <p class="is-uppercase is-size-6 has-text-grey">Loss</p>
+        </div>
+    </div>
+</%def>
+
+<%page cached="False"/>
+
+<div class="columns">
+    <div class="column">
+        <div class="distping-page" id="overview-page">
+            <h1 class="title">Overview</h1>
+            <nav class="level">
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Online</p>
+                        <p class="title has-text-success">
+                            <i class="fa fa-check-circle"></i>
+                            <span class="counter-targets-online">${statusNumbers['online']}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Unstable</p>
+                        <p class="title has-text-warning">
+                            <i class="fa fa-check-circle"></i>
+                            <span class="counter-targets-unstable">${statusNumbers['unstable']}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="level-item has-text-centered">
+                    <div>
+                        <p class="heading">Offline</p>
+                        <p class="title has-text-danger">
+                            <i class="fa fa-check-circle"></i>
+                            <span class="counter-targets-offline">${statusNumbers['offline']}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="level-item has-text-centered">
+                    <div>
+                      <p class="heading">Observers</p>
+                      <p class="title has-text-info">
+                          <i class="fa fa-user-secret"></i>
+                          <span class="counter-observers">
+                              ${observerConnections['connected']} / ${observerConnections['total']}
+                          </span>
+                      </p>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="targets-list">
+                % for category in targets:
+                    ${drawCategory(category)}
+                % endfor
+            </div>
+        </div>
+    </div>
+</div>
