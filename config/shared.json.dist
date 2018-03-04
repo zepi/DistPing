@@ -50,6 +50,13 @@
             "contentType": "json",
             "name": "Example Alert",
             "url": "http://example.com/webhook-alert"
+        },
+        {
+            "event": "status-changed",
+            "type": "script",
+            "contentType": "json",
+            "name": "Example Script Alert",
+            "command": "/opt/DistPing/scripts/test.sh"
         }
     ]
 }

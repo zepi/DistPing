@@ -25,19 +25,19 @@
 
 <%def name="drawTargetRow(targetKey, target, latestValues)" cached="False">
     <div class="columns target-row">
-        <div class="column is-narrow">
-            <i class="fa fa-check-circle is-size-1
+        <div class="column is-narrow icon-column">
+            <i class="fa is-size-1
                     % if latestValues['loss']==100:
-                        has-text-danger
+                        fa-times-circle has-text-danger
                     % elif latestValues['loss']>0:
-                        has-text-warning
+                        fa-exclamation-circle has-text-warning
                     % else:
-                        has-text-success
+                        fa-check-circle has-text-success
                     % endif
                 ">
             </i>
         </div>
-        <div class="column is-one-quarter">
+        <div class="column is-one-quarter title-column">
             <p class="title is-marginless is-size-4">${target['name']}</p>
             <p class="is-size-6 has-text-grey">
                 ${target['host']}
@@ -101,7 +101,7 @@
                     <div>
                         <p class="heading">Unstable</p>
                         <p class="title has-text-warning">
-                            <i class="fa fa-check-circle"></i>
+                            <i class="fa fa-exclamation-circle"></i>
                             <span class="counter-targets-unstable">${statusNumbers['unstable']}</span>
                         </p>
                     </div>
@@ -110,7 +110,7 @@
                     <div>
                         <p class="heading">Offline</p>
                         <p class="title has-text-danger">
-                            <i class="fa fa-check-circle"></i>
+                            <i class="fa fa-times-circle"></i>
                             <span class="counter-targets-offline">${statusNumbers['offline']}</span>
                         </p>
                     </div>

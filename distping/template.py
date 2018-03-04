@@ -3,6 +3,7 @@ from mako.lookup import TemplateLookup
 import os
 
 import distping
+import config
 import template
 
 lookup = None
@@ -12,5 +13,7 @@ def initializeTemplateSystem():
     
 def renderTemplate(templateName, **kwargs):
     templateFile = template.lookup.get_template(templateName)
+    
+    kwargs['observerName'] = config.getLocalConfigValue('observerName')
     
     return templateFile.render(**kwargs)

@@ -2,6 +2,8 @@ import json
 import requests
 import logging
 import time
+import subprocess
+import os
 
 import distping
 import config
@@ -22,3 +24,12 @@ def executeAction(action, data):
     if (action['type'] == 'webhook'):
         if (action['contentType'] == 'json'):
             requests.post(action['url'], json=data)
+    elif (action['type'] == 'script'):
+        actionEnv = os.environ.copy()
+        actionEnv['EVENT'] = json.dumps(data)
+        
+        commandRaw = action['command']
+        command = commandRaw.split(' ')
+        
+        subprocess.call(command, env=actionEnv)
+        

@@ -6,3 +6,6 @@ web/yarn.lock
 .project
 .pydevproject
 logs/*.log
+scripts/*.sh
+scripts/templates/*.html
+scripts/templates/*.txt

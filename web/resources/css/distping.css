@@ -10,3 +10,16 @@
 .target-row:nth-child(odd) {
     background: hsl(0, 0%, 96%);
 }
+
+.icon-column {
+    display: flex;
+    
+    align-items: center;
+}
+
+.title-column {
+    display: flex;
+    
+    justify-content: center;
+    flex-direction: column;
+}

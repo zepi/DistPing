@@ -163,11 +163,12 @@ def switchLeader(startTime):
     for name in collector.connections:
         connection = collector.connections[name]
         
-        connection.send(setLeaderCommand)
         connection.send(setLastAnalysisCommand)
         
         if (status.statusChanged):
             connection.send(setStatusCommand)
+            
+        connection.send(setLeaderCommand)
     
 def getObserverRandomly():
     observers = config.getSharedConfigValue('observers')
