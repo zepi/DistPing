@@ -8,7 +8,7 @@ $(document).ready(function () {
         });
     });
 
-    //setInterval('refreshData();', 10000);
+    setInterval('refreshData();', 10000);
 });
 
 function refreshData()
