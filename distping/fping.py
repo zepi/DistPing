@@ -19,7 +19,10 @@ def pingTargets(targets):
         
     hosts = []
     for target in targets:
-        hosts.append(target['host'])
+        if ('address' in target):
+            hosts.append(target['address'])
+        else:
+            hosts.append(target['host'])
         
     # Ping the targets
     result = subprocess.run([
