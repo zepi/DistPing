@@ -35,6 +35,12 @@ def loadLocalConfig():
     
 def loadSharedConfig():
     config.shared = loadConfigFile('shared.json')
+    
+    # Sort the targets
+    config.shared['targets'] = sorted(config.shared['targets'], key=lambda group: group['name'])
+    
+    for group in config.shared['targets']:
+        group['targets'] = sorted(group['targets'], key=lambda target: target['name'])
 
 def getLocalConfigValue(configPath):
     if (config.local == False):
