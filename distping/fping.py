@@ -18,9 +18,11 @@ def pingTargets(targets):
         fpingBinary = searchFpingBinary()
         
     hosts = []
+    addressTranslationTable = {}
     for target in targets:
         if ('address' in target):
             hosts.append(target['address'])
+            addressTranslationTable[target['address']] = target['host']
         else:
             hosts.append(target['host'])
         
@@ -34,7 +36,7 @@ def pingTargets(targets):
     ] + hosts, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
     # Parse the raw results
-    pingResults = parseRawResult(result.stdout.decode('utf-8'))
+    pingResults = parseRawResult(result.stdout.decode('utf-8'), addressTranslationTable)
     
     return pingResults
     
@@ -44,7 +46,7 @@ def searchFpingBinary():
     else:
         return spawn.find_executable('fping')
     
-def parseRawResult(rawResult):
+def parseRawResult(rawResult, addressTranslationTable):
     pingResults = []
     
     for line in rawResult.split('\n'):
@@ -54,6 +56,9 @@ def parseRawResult(rawResult):
         splittedLine = line.split(' : ')
         
         key = splittedLine[0].strip()
+        if key in addressTranslationTable:
+            key = addressTranslationTable[key]
+        
         splittedData = splittedLine[1].strip().split(', ')
 
         statisticValues = getDataValues(splittedData[0].strip())

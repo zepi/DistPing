@@ -80,7 +80,6 @@ def analyzeTargets():
     logging.debug('Analyze the grouped data.')
     analyzeData(dataByTarget)
     
-    # TODO: Switch to a websocket manager object and broadcast the requests
     switchLeader(startTime)
     
 def groupDataByTarget():
@@ -171,9 +170,12 @@ def switchLeader(startTime):
         connection.send(setLeaderCommand)
     
 def getObserverRandomly():
-    observers = config.getSharedConfigValue('observers')
+    connectedObservers = connections.keys()
     
-    return random.choice(list(observers.keys()))
+    if len(connectedObservers) == 0:
+        return config.getLocalConfigValue('observerName')
+    
+    return random.choice(list(connectedObservers))
 
 def startCollectorThread():
     time.sleep(2)
