@@ -30,7 +30,7 @@ def pingTargets(targets):
     result = subprocess.run([
         fpingBinary, 
         '-t', str(config.getSharedConfigValue('check.initialTimeout')), 
-        '-i', str(config.getSharedConfigValue('check.packetInterval')), 
+        '-p', str(config.getSharedConfigValue('check.packetInterval')), 
         '-c', str(config.getSharedConfigValue('check.numberOfPackets')), 
         '-q'
     ] + hosts, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
