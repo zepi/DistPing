@@ -9,9 +9,21 @@ import config
 import collector
 import template
 import monitor
+import crypt
+from hmac import compare_digest as compare_hash
 from websocket import DistPingServer
 
 class DistPingFrontend(object):
+    def __init__(self):
+        self.jsonApi = DistPingJsonApi()
+
+    def _cp_dispatch(self, vpath):
+        if len(vpath) == 1:
+            return self
+        if len(vpath) == 2:
+            return self.jsonApi
+        return self
+    
     @cherrypy.expose
     def index(self):
         raise cherrypy.HTTPRedirect('/status')
@@ -32,11 +44,26 @@ class DistPingFrontend(object):
     def ws(self):
         handler = cherrypy.request.ws_handler
 
+class DistPingJsonApi(object):
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def observer(self):
+        return collector.getConnectionStatistics()
+        
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    def status(self):
+        return {
+            'lastCheck': monitor.lastCheck,
+            'nextCheck': monitor.nextCheck,
+            'status': monitor.getLatestValues()
+        }
+
 def validateUsernameAndPassword(realm, username, password):
     users = config.getLocalConfigValue('users')
-    
-    if username in users and users[username] == password:
-         return True
+
+    if username in users and compare_hash(crypt.crypt(password, users[username]), users[username]):
+        return True
    
     return False
     
@@ -107,3 +134,4 @@ def startFrontendThread():
             'tools.staticfile.filename': distping.getRootDirectory() + '/web/resources/img/favicon.ico'
         }
     })
+    

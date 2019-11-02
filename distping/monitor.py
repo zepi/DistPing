@@ -7,6 +7,8 @@ import fping
 import monitor
 
 latestValues = {}
+lastCheck = 0
+nextCheck = 0
 
 def getTargets():
     tree = config.getSharedConfigValue('targets')
@@ -57,12 +59,11 @@ def getStatusForLossValue(lossAverage):
     return status
 
 def startMonitorThread():
-    lastCheck = 0
-    
     while (not distping.exitApplication):
         try:
-            if (lastCheck + config.getSharedConfigValue('check.interval') < time.time()):
-                lastCheck = time.time()
+            if (monitor.nextCheck < time.time()):
+                monitor.lastCheck = int(time.time())
+                monitor.nextCheck = monitor.lastCheck + config.getSharedConfigValue('check.interval')
                 
                 logging.debug('Perform a check...')
                 executeCheck()

@@ -10,6 +10,7 @@
             "certificateChain": ""
         },
         "logs": {
+            "coreLogLevel": "INFO",
             "coreLogFile": "/path-to/logs/core.log",
             "accessLogFile": "/path-to/logs/access.log",
             "errorLogFile": "/path-to/logs/error.log"
@@ -19,6 +20,6 @@
         "data": "/path-to/data/db.pdl"
     },
     "users": {
-        "admin": "password"
+        "admin": "$apr1$8l9M8zRq$J2dLt2BdbO630VQrdf4Sy."
     }
 }
