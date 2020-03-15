@@ -9,6 +9,7 @@ import config
 import collector
 import template
 import monitor
+import utils
 from websocket import DistPingServer
 
 class DistPingFrontend(object):

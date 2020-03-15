@@ -9,3 +9,4 @@ logs/*.log
 scripts/*.sh
 scripts/templates/*.html
 scripts/templates/*.txt
+*.pyc

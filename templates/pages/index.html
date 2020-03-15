@@ -1,13 +1,24 @@
 <%inherit file="/overall/base.html"/>
 
-<%def name="drawCategory(category)" cached="False">
+<%def name="drawCategory(category)" cached="False" buffered="True">
     <div class="target-group">
         <h3 class="title">${category['name']}</h3>
         
+        <%
+            hasRows = False
+        %>
         % for target in category['targets']:
             <%
-                if target['host'] in latestValues:
-                    values = latestValues[target['host']]
+                import utils
+                
+                if 'observers' in target and observerName not in target['observers']:
+                    continue
+                
+                hasRows = True
+                path = utils.getPath(category, target)
+                
+                if path in latestValues:
+                    values = latestValues[path]
                 else:
                     values = {
                         'min': 0,
@@ -18,8 +29,13 @@
                 endif
             %>
             
-            ${drawTargetRow(target['host'], target, values)}
+            ${drawTargetRow(path, target, values)}
         % endfor
+        
+        <%
+            if not hasRows:
+                return ""
+        %>
     </div>
 </%def>
 
@@ -40,7 +56,11 @@
         <div class="column is-one-quarter title-column">
             <p class="title is-marginless is-size-4">${target['name']}</p>
             <p class="is-size-6 has-text-grey">
-                ${target['host']}
+                % if 'host' in target:
+                    ${target['host']}
+                % elif 'url' in target:
+                    ${target['url']}
+                % endif
                 % if 'address' in target:
                     <span class="has-text-grey-light">(${target['address']})</span>
                 % endif

@@ -16,6 +16,8 @@ import monitor
 import frontend
 import collector
 
+version = 'v0.2'
+
 arguments = False
 exitApplication = False
 database = None

@@ -19,19 +19,20 @@ def pingTargets(targets):
         
     hosts = []
     addressTranslationTable = {}
-    for target in targets:
+    for path, target in targets.items():
         if ('address' in target):
             hosts.append(target['address'])
-            addressTranslationTable[target['address']] = target['host']
+            addressTranslationTable[target['address']] = target['path']
         else:
             hosts.append(target['host'])
+            addressTranslationTable[target['host']] = target['path']
         
     # Ping the targets
     result = subprocess.run([
         fpingBinary, 
-        '-t', str(config.getSharedConfigValue('check.initialTimeout')), 
-        '-i', str(config.getSharedConfigValue('check.packetInterval')), 
-        '-c', str(config.getSharedConfigValue('check.numberOfPackets')), 
+        '-t', str(config.getSharedConfigValue('ping.initialTimeout')), 
+        '-i', str(config.getSharedConfigValue('ping.packetInterval')), 
+        '-c', str(config.getSharedConfigValue('ping.numberOfPackets')), 
         '-q'
     ] + hosts, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     
@@ -63,7 +64,7 @@ def parseRawResult(rawResult, addressTranslationTable):
 
         statisticValues = getDataValues(splittedData[0].strip())
         pingResult = {
-            'target': key,
+            'path': key,
             'time': int(time.time()),
             'statistic': {
                 'sent': int(statisticValues[0]),
@@ -76,6 +77,7 @@ def parseRawResult(rawResult, addressTranslationTable):
                 'max': 0
             }
         }
+        print(pingResult)
         
         pingResult['status'] = monitor.getStatusForLossValue(pingResult['statistic']['loss'])
         

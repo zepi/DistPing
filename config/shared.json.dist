@@ -3,9 +3,18 @@
     "secretKey": "secret",
     "check": {
         "interval": 30,
+        "threads": 5
+    },
+    "ping": {
         "numberOfPackets": 4,
         "initialTimeout": 1000,
         "packetInterval": 200
+    },
+    "http": {
+        "timeout": 5
+    },
+    "port": {
+        "timeout": 5
     },
     "analysis": {
         "timeInterval": 30,
@@ -22,16 +31,35 @@
     },
     "targets": [
         {
+            "key": "example-group",
             "name": "Example Group",
             "targets": [
                 {
+                    "key": "ping-www.example.com",
+                    "type": "ping",
                     "name": "Example Website",
                     "host": "www.example.com"
                 },
-        
                 {
+                    "key": "ping-google.com",
+                    "type": "ping",
                     "name": "google.com",
                     "host": "www.google.com"
+                },
+                {
+                    "key": "port-smtp",
+                    "type": "port",
+                    "name": "smtp.example.com Port 25",
+                    "port": 25,
+                    "host": "smtp.example.com"
+                },
+                {
+                    "key": "example-is-online",
+                    "type": "http",
+                    "name": "Example.com Online",
+                    "url": "https://www.example.com",
+                    "keyword": "Example Domain",
+                    "fails": "if-not-exists"
                 }
             ]
         }
