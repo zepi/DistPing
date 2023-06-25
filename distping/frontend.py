@@ -1,15 +1,12 @@
 import cherrypy
-from cherrypy.lib import auth_basic
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-import time
-import logging
+import bcrypt
 
 import distping
 import config
 import collector
 import template
 import monitor
-import utils
 from websocket import DistPingFrontendServer
 
 class DistPingFrontend(object):
@@ -43,7 +40,7 @@ class DistPingFrontend(object):
 def validateUsernameAndPassword(realm, username, password):
     users = config.getLocalConfigValue('users')
     
-    if username in users and users[username] == password:
+    if username in users and bcrypt.checkpw(password.encode('UTF-8'), users[username].encode('UTF-8')):
          return True
    
     return False
