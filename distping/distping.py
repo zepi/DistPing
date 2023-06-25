@@ -15,8 +15,10 @@ import config
 import monitor
 import frontend
 import collector
+import network
 
 version = 'v0.2'
+observerName = ''
 
 arguments = False
 exitApplication = False
@@ -24,7 +26,8 @@ database = None
 threads = { 
     'threadMonitor': monitor.startMonitorThread,
     'threadFrontend': frontend.startFrontendThread,
-    'threadCollector': collector.startCollectorThread
+    'threadCollector': collector.startCollectorThread,
+    'threadNetwork': network.startNetworkThread
 }
 processes = {}
 
@@ -142,6 +145,8 @@ if __name__ == '__main__':
     logging.info('DistPing started.')
     logging.debug('Load configuration file...')
     config.loadConfigs()
+
+    observerName = config.getLocalConfigValue('observerName')
     
     # Abort the execution if the config isn't loaded
     if (distping.config == False):

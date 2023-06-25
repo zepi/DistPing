@@ -1,25 +1,67 @@
 .distping-logo {
-    height: 40px;
+    height: 2.5rem;
 }
 
-.target-group {
-    margin-top: 3rem;
-    margin-bottom: 4rem;
-}
-
-.target-row:nth-child(odd) {
-    background: hsl(0, 0%, 96%);
-}
-
-.icon-column {
+.status-bar {
     display: flex;
-    
-    align-items: center;
-}
-
-.title-column {
-    display: flex;
-    
     justify-content: center;
-    flex-direction: column;
+
+    background: #000000;
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    border-radius: 4px;
+    padding: 0.5rem 0.5rem;
+
+    margin-left: 2rem;
+}
+
+.status-bar .status-bar-item {
+    display: flex;
+    align-items: center;
+
+    padding: 0 0.75rem;
+
+    font-weight: bold;
+
+    color: var(--tblr-status-color);
+}
+
+.status-bar .ti {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+/*.status-green {
+    color: #23d160 !important;
+}
+
+.status-yellow {
+    color: #edc011 !important;
+}
+
+.status-red {
+    color: #ff3860 !important;
+}
+
+.status-blue {
+    color: #209cee !important;
+}*/
+
+.status-important {
+    font-weight: bold;
+}
+
+.target-title {
+    display: flex;
+    align-items: center;
+
+    margin-bottom: 1rem;
+}
+
+.target-title .ti {
+    font-size: 2rem;
+    margin-right: 0.75rem;
+}
+
+.nav-link-icon .ti {
+    font-size: 1.25rem;
 }

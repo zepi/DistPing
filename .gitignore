@@ -10,3 +10,5 @@ scripts/*.sh
 scripts/templates/*.html
 scripts/templates/*.txt
 *.pyc
+/p2py-logs/
+.idea/

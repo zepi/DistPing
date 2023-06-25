@@ -10,7 +10,7 @@ import collector
 import template
 import monitor
 import utils
-from websocket import DistPingServer
+from websocket import DistPingFrontendServer
 
 class DistPingFrontend(object):
     @cherrypy.expose
@@ -23,14 +23,21 @@ class DistPingFrontend(object):
         
         return template.renderTemplate(
             'pages/index.html',
+            pageTitle='Status',
             statusNumbers=statusNumbers,
             observerConnections=collector.getConnectionStatistics(), 
             targets=config.getSharedConfigValue('targets'), 
-            latestValues=monitor.getLatestValues()
+            latestValues=monitor.getLatestValues(),
+            webIpAddress=config.getLocalConfigValue('server.webIpAddress'),
+            webPort=config.getLocalConfigValue('server.webPort')
         )
     
     @cherrypy.expose
     def ws(self):
+        handler = cherrypy.request.ws_handler
+
+    @cherrypy.expose
+    def ws_frontend(self):
         handler = cherrypy.request.ws_handler
 
 def validateUsernameAndPassword(realm, username, password):
@@ -57,8 +64,8 @@ def startFrontendThread():
     template.initializeTemplateSystem()
     
     cherrypy.config.update({
-        'server.socket_host': config.getLocalConfigValue('server.ipAddress'), 
-        'server.socket_port': config.getLocalConfigValue('server.port'),
+        'server.socket_host': config.getLocalConfigValue('server.webIpAddress'),
+        'server.socket_port': config.getLocalConfigValue('server.webPort'),
         'log.screen': False,
         'log.access_file': '',
         'log.error_file': ''
@@ -98,8 +105,8 @@ def startFrontendThread():
         },
         '/ws': {
             'tools.websocket.on': True,
-            'tools.websocket.handler_cls': DistPingServer,
-            
+            'tools.websocket.handler_cls': DistPingFrontendServer,
+
             # Auth
             'tools.auth_basic.on': False,
         },

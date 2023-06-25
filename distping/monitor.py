@@ -5,6 +5,8 @@ import distping
 import config
 import fping
 import monitor
+import websocket
+import checks
 import utils
 
 latestValues = {}
@@ -33,10 +35,26 @@ def groupTargets(tree):
                     'path': path
                 }
             
-    print(pingableTargets)
-    print(otherTargets)
-        
     return (pingableTargets, otherTargets)
+
+def getAllTargets(tree):
+    targets = {}
+
+    observerName = config.getLocalConfigValue('observerName')
+
+    for group in tree:
+        for target in group['targets']:
+            if 'observers' in target and observerName not in target['observers']:
+                continue
+
+            path = utils.getPath(group, target)
+
+            targets[path] = {
+                **target,
+                'path': path
+            }
+
+    return targets
 
 def getLatestValues():
     if (len(monitor.latestValues) == 0):
@@ -55,18 +73,41 @@ def executePingChecks(targets):
             'host': target['host'],
             'status': result['status'],
             'time': result['time'],
-            'sent': result['statistic']['sent'],
-            'received': result['statistic']['received'],
-            'loss': result['statistic']['loss'],
-            'min': result['timing']['min'],
-            'avg': result['timing']['avg'],
-            'max': result['timing']['max']
+            'data': result['data']
         }
+        websocket.broadcastMessage({
+            'type': 'status-update',
+            'path': result['path'],
+            'status': result['status'],
+            'data': result['data']
+        })
         
 def executeOtherChecks(targets):
-    results = False
+    results = checks.checkTargets(targets)
 
-def getStatusForLossValue(lossAverage):
+    # Save the results in the local database
+    for result in results:
+        target = targets[result['path']]
+
+        if (target['type'] == 'port'):
+            host = target['host']
+        else:
+            host = target['url']
+
+        monitor.latestValues[result['path']] = {
+            'host': host,
+            'status': result['status'],
+            'time': result['time'],
+            'data': result['data']
+        }
+        websocket.broadcastMessage({
+            'type': 'status-update',
+            'path': result['path'],
+            'status': result['status'],
+            'data': result['data']
+        })
+
+def getStatusForPingLossValue(lossAverage):
     status = 'online'
     
     if (lossAverage > float(config.getSharedConfigValue('analysis.thresholdDown'))):

@@ -1,8 +1,10 @@
 {
     "observerName": "observer1",
     "server": {
-        "ipAddress": "0.0.0.0",
-        "port": 8680,
+        "webIpAddress": "0.0.0.0",
+        "webPort": 8680,
+        "networkIpAddress": "0.0.0.0",
+        "networkPort": 8644,
         "ssl": {
             "enabled": false,
             "certificate": "",
@@ -12,7 +14,8 @@
         "logs": {
             "coreLogFile": "/path-to/logs/core.log",
             "accessLogFile": "/path-to/logs/access.log",
-            "errorLogFile": "/path-to/logs/error.log"
+            "errorLogFile": "/path-to/logs/error.log",
+            "coreLogLevel": "DEBUG"
         }
     },
     "directory": {

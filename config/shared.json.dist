@@ -23,10 +23,12 @@
     },
     "observers": {
         "observer1": {
-            "url": "ws://127.0.0.1:8680/ws"
+            "ipAddress": "127.0.0.1",
+            "port": 8680
         },
         "observer2": {
-            "url": "ws://127.0.0.2:8780/ws"
+            "ipAddress": "127.0.0.2",
+            "port": 8780
         }
     },
     "targets": [

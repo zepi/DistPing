@@ -1,11 +1,12 @@
 import subprocess
 import os
 import time
-from distutils import spawn
+import shutil
 
 import distping
 import config
 import monitor
+import utils
 
 def pingTargets(targets):
     fpingBinary = ''
@@ -14,9 +15,12 @@ def pingTargets(targets):
     except KeyError as err:
         fpingBinary = ''
         
-    if (fpingBinary == '' or not os.path.isfile(fpingBinary) or not os.access(fpingBinary, os.X_OK)):
+    if (fpingBinary == None or fpingBinary == '' or not os.path.isfile(fpingBinary) or not os.access(fpingBinary, os.X_OK)):
         fpingBinary = searchFpingBinary()
-        
+
+    if (fpingBinary == None):
+        raise SystemError('Executable fping file not found.')
+
     hosts = []
     addressTranslationTable = {}
     for path, target in targets.items():
@@ -40,12 +44,9 @@ def pingTargets(targets):
     pingResults = parseRawResult(result.stdout.decode('utf-8'), addressTranslationTable)
     
     return pingResults
-    
+
 def searchFpingBinary():
-    if not spawn.find_executable('fping'):
-        raise SystemError('Executable fping file not found.')
-    else:
-        return spawn.find_executable('fping')
+    return shutil.which('fping')
     
 def parseRawResult(rawResult, addressTranslationTable):
     pingResults = []
@@ -66,30 +67,25 @@ def parseRawResult(rawResult, addressTranslationTable):
         pingResult = {
             'path': key,
             'time': int(time.time()),
-            'statistic': {
+            'data': {
                 'sent': int(statisticValues[0]),
                 'received': int(statisticValues[1]),
-                'loss': int(statisticValues[2].strip('%'))
-            },
-            'timing': {
+                'loss': int(statisticValues[2].strip('%')),
                 'min': 0,
                 'avg': 0,
                 'max': 0
             }
         }
-        print(pingResult)
         
-        pingResult['status'] = monitor.getStatusForLossValue(pingResult['statistic']['loss'])
+        pingResult['status'] = monitor.getStatusForPingLossValue(pingResult['data']['loss'])
         
         if (len(splittedData) == 2):
             timingValues = getDataValues(splittedData[1].strip())
             
-            pingResult['timing'] = {
-                'min': timingValues[0],
-                'avg': timingValues[1],
-                'max': timingValues[2]
-            }
-        
+            pingResult['data']['min'] = utils.roundTime(timingValues[0])
+            pingResult['data']['avg'] = utils.roundTime(timingValues[1])
+            pingResult['data']['max'] = utils.roundTime(timingValues[2])
+
         pingResults.append(pingResult)
         
     return pingResults

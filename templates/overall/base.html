@@ -11,52 +11,74 @@
         <link rel="icon" href="/favicon.ico" type="image/x-icon">
         
         <title>
-            DistPing ${distping.version}  
+            ${pageTitle} - ${observerName} - DistPing ${distping.version}
         </title>
-        
-        <link rel="stylesheet" href="/node_modules/bulma/css/bulma.css">
-        <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta19/dist/css/tabler.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
         <link rel="stylesheet" href="/resources/css/distping.css">
-        
-        <script defer src="/node_modules/jquery/dist/jquery.min.js"></script>
-        <script defer src="/node_modules/moment/min/moment.min.js"></script>
-        <script defer src="/resources/js/distping.js"></script>
     </head>
     <body>
-        <header>
-            <nav class="navbar is-fixed-top is-light" role="navigation" aria-label="main navigation">
-                <div class="container">
-                    <div class="navbar-brand">
-                        <a class="navbar-item" href="/index.html">
-                            <img src="/resources/img/logo.svg" alt="DistPing" class="distping-logo">
-                        </a>
-                        
-                        <div class="navbar-burger burger" data-target="distpingNavbar">
-                            <span></span>
-                            <span></span>
-                            <span></span>
+        <div class="page">
+            <div class="sticky-top">
+                <header class="navbar navbar-expand-md d-print-none" data-bs-theme="dark">
+                    <div class="container-xl">
+                        <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+                            <a href="/">
+                                <img src="/resources/img/logo.svg" alt="DistPing" class="navbar-brand-image distping-logo">
+                            </a>
+                        </h1>
+                        <div class="navbar-nav flex-row order-md-last">
+                            <div class="nav-item d-none d-md-flex">
+                                ${observerName}
+                            </div>
+                            <div class="nav-item d-none d-md-flex">
+                                <div class="status-bar">
+                                    <div class="status-bar-item status-green">
+                                        <i class="ti ti-circle-check"></i>
+                                        <span class="counter-targets-online">0</span>
+                                    </div>
+                                    <div class="status-bar-item status-yellow">
+                                        <i class="ti ti-alert-circle"></i>
+                                        <span class="counter-targets-unstable">0</span>
+                                    </div>
+                                    <div class="status-bar-item status-red">
+                                        <i class="ti ti-circle-x"></i>
+                                        <span class="counter-targets-offline">0</span>
+                                    </div>
+                                    <div class="status-bar-item status-azure">
+                                        <i class="ti ti-satellite"></i>
+                                        <span class="counter-observers">0 / 0</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div id="distpingNavbar" class="navbar-menu">
-                        <div class="navbar-start">
-                            <a class="navbar-item" href="/">
-                                Home
-                            </a>
-                        </div>
-                        <div class="navbar-end">
-                            <div class="navbar-item">
-                                ${observerName}
+                </header>
+            </div>
+
+            <div class="page-wrapper">
+                <div class="container-xl">
+                    <div class="page-header d-print-none">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h2 class="page-title">${pageTitle}</h2>
                             </div>
                         </div>
                     </div>
                 </div>
-            </nav>
-        </header>
-        <section class="section">
-            <div class="container">
-                ${self.body()}
+                <div class="page-body">
+                    ${self.body()}
+                </div>
             </div>
-        </section>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta19/dist/js/tabler.min.js"></script>
+
+        <script defer src="/resources/js/distping.js"></script>
+
+        <%block name="javascripts"></%block>
     </body>
 </html>

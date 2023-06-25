@@ -1,103 +1,47 @@
-import logging
-from ws4py.client.threadedclient import WebSocketClient
 from ws4py.websocket import WebSocket
-from ws4py.manager import WebSocketManager
-import time
+from ws4py.messaging import TextMessage
+import cherrypy
 import json
 
-import distping
 import config
 import monitor
-import collector
-import websocket
-import status
+import network
+import utils
 
-manager = WebSocketManager()
-
-class DistPingClient(WebSocketClient):
-    def opened(self):
-        self.send(json.dumps({
-            'command': 'authenticate',
-            'key': config.getSharedConfigValue('secretKey')
-        }))
-        
+class DistPingFrontendServer(WebSocket):
     def received_message(self, message):
         parsedMessage = json.loads(str(message))
-        
-        executeClientRequest(self, parsedMessage)
 
-class DistPingServer(WebSocket):
-    isAuthorized = False
-    
-    def received_message(self, message):
-        parsedMessage = json.loads(str(message))
-        
-        if (parsedMessage['command'] == 'authenticate'):
-            if (parsedMessage['key'] == config.getSharedConfigValue('secretKey')):
-                self.isAuthorized = True
-                websocket.manager.add(self)
-                
-                logging.info('Observer {} authenticated with secret key.'.format(self.peer_address[0]))
-                
-                self.send(json.dumps({
-                    'response': 'welcome',
-                    'leader': collector.leader
-                }))
-            else:
-                self.isAuthorized = False
-                
-                logging.warning('Authorization with invalid secret key from {}.'.format(self.peer_address[0]))
-                
-                self.send(json.dumps({'response': 'secret_key_invalid'}))
-                self.close(1000, 'Secret key invalid.')
-        else:
-            executeServerRequest(self, parsedMessage)
-            
-    def closed(self, code, message):
-        websocket.manager.remove(self)
-        
-def executeServerRequest(socket, parsedMessage):
-    if (parsedMessage['command'] == 'get_latest_config'):
-        socket.send('config:def')
-    elif (parsedMessage['command'] == 'get_latest_values'):
-        logging.debug('Received request from the leader for the latest values.')
-        latestValues = monitor.getLatestValues()
+        if (parsedMessage['command'] == 'get_status'):
+            targets = config.getSharedConfigValue('targets')
+            latestValues = monitor.getLatestValues()
 
-        socket.send(json.dumps({
-            'response': 'latest_values',
-            'observerName': config.getLocalConfigValue('observerName'),
-            'data': latestValues
-        }))
-    elif (parsedMessage['command'] == 'set_leader'):
-        collector.leader = parsedMessage['leader']
-        
-        socket.send(json.dumps({'response': 'leader_set'}))
-    elif (parsedMessage['command'] == 'set_status'):
-        status.statusData = parsedMessage['data']
-        
-        socket.send(json.dumps({'response': 'status_set'}))
-    elif (parsedMessage['command'] == 'set_last_analysis'):
-        collector.lastAnalysisTime = time.time() - parsedMessage['duration']
-        
-        socket.send(json.dumps({'response': 'last_analysis_set'}))
-        
-def executeClientRequest(socket, parsedMessage):
-    if (parsedMessage['response'] == 'welcome'):
-        if (parsedMessage['leader'] == False and collector.leader == False):
-            collector.leader = collector.getObserverRandomly()
-            
-            sendCommandToSetNewLeader(collector.leader)
-        elif (parsedMessage['leader'] == False and collector.leader != False):
-            sendCommandToSetNewLeader(collector.leader)
-        else:
-            collector.leader = parsedMessage['leader']
-    elif (parsedMessage['response'] == 'latest_values'):
-        logging.debug('Received latest values from {}.'.format(parsedMessage['observerName']))
-        
-        collector.lastData[parsedMessage['observerName']] = parsedMessage['data']
-    
-def sendCommandToSetNewLeader(newLeader):
-    websocket.manager.broadcast(json.dumps({
-        'command': 'set_leader',
-        'leader': newLeader
-    }))
+            for category in targets:
+                for target in category['targets']:
+                    path = utils.getPath(category, target)
+                    if path in latestValues:
+                        val = latestValues[path]
+                        status = val['status']
+                        data = val['data']
+                    else:
+                        status = 'offline'
+                        data = {}
+
+                    self.send(json.dumps({
+                        'type': 'status-update',
+                        'path': path,
+                        'status': status,
+                        'data': data,
+                    }))
+
+        sendObserverCountUpdate()
+
+def broadcastMessage(message):
+    cherrypy.engine.publish('websocket-broadcast', TextMessage(json.dumps(message)))
+
+def sendObserverCountUpdate():
+    broadcastMessage({
+        'type': 'observer-count-update',
+        'numberOfConnectedObservers': len(network.node.connections) + 1,
+        'numberOfTotalObservers': len(network.observerMapping) + 1,
+    })

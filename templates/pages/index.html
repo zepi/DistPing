@@ -1,9 +1,10 @@
 <%inherit file="/overall/base.html"/>
 
 <%def name="drawCategory(category)" cached="False" buffered="True">
-    <div class="target-group">
+    <div class="row">
         <h3 class="title">${category['name']}</h3>
-        
+    </div>
+    <div class="row row-deck row-cards mb-4">
         <%
             hasRows = False
         %>
@@ -16,20 +17,9 @@
                 
                 hasRows = True
                 path = utils.getPath(category, target)
-                
-                if path in latestValues:
-                    values = latestValues[path]
-                else:
-                    values = {
-                        'min': 0,
-                        'avg': 0,
-                        'max': 0,
-                        'loss': 0
-                    }
-                endif
             %>
             
-            ${drawTargetRow(path, target, values)}
+            ${drawTargetRow(path, target)}
         % endfor
         
         <%
@@ -39,120 +29,91 @@
     </div>
 </%def>
 
-<%def name="drawTargetRow(targetKey, target, latestValues)" cached="False">
-    <div class="columns target-row">
-        <div class="column is-narrow icon-column">
-            <i class="fa is-size-1
-                    % if latestValues['loss']==100:
-                        fa-times-circle has-text-danger
-                    % elif latestValues['loss']>0:
-                        fa-exclamation-circle has-text-warning
-                    % else:
-                        fa-check-circle has-text-success
-                    % endif
-                ">
-            </i>
-        </div>
-        <div class="column is-one-quarter title-column">
-            <p class="title is-marginless is-size-4">${target['name']}</p>
-            <p class="is-size-6 has-text-grey">
-                % if 'host' in target:
-                    ${target['host']}
-                % elif 'url' in target:
-                    ${target['url']}
+<%def name="drawTargetRow(targetKey, target)" cached="False">
+    <div class="col col-md-4">
+        <div class="card target" data-path="${targetKey}">
+            <div class="card-status-start bg-secondary"></div>
+            <div class="card-body">
+                <div class="target-title">
+                    <i class="ti ti-help-octagon text-secondary"></i>
+                    <div class="flex-fill">
+                        <h3 class="card-title mb-0">${target['name']}</h3>
+                        <span class="text-muted">
+                            % if 'host' in target:
+                                ${target['host']}
+                            % elif 'url' in target:
+                                ${target['url']}
+                            % endif
+                            % if 'address' in target:
+                                (${target['address']})
+                            % endif
+                        </span>
+                    </div>
+                </div>
+                % if target['type'] == 'ping':
+                    <div class="row">
+                        <div class="col-3 subheader text-center">
+                            min
+                        </div>
+                        <div class="col-4 subheader text-center">
+                            avg
+                        </div>
+                        <div class="col-3 subheader text-center">
+                            max
+                        </div>
+                        <div class="col-2 subheader text-center">
+                            loss
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3 text-center ping-min-value">
+                            n/a
+                        </div>
+                        <div class="col-4 status-important text-center ping-avg-value">
+                            n/a
+                        </div>
+                        <div class="col-3 text-center ping-max-value">
+                            n/a
+                        </div>
+                        <div class="col-2 text-center ping-loss-value">
+                            n/a
+                        </div>
+                    </div>
+                % else:
+                    <div class="row">
+                        <div class="col-3 subheader text-center">
+                            time
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3 status-important text-center request-time-value">
+                            n/a
+                        </div>
+                    </div>
                 % endif
-                % if 'address' in target:
-                    <span class="has-text-grey-light">(${target['address']})</span>
-                % endif
-            </p>
-        </div>
-        <div class="column has-text-centered">
-            <p class="is-size-4">
-                ${latestValues['min']} ms
-            </p>
-            <p class="is-uppercase is-size-6 has-text-grey">Min</p>
-        </div>
-        <div class="column has-text-centered">
-            <p class="is-size-4 has-text-weight-semibold">
-                ${latestValues['avg']} ms
-            </p>
-            <p class="is-uppercase is-size-6 has-text-grey">Avg</p>
-        </div>
-        <div class="column has-text-centered">
-            <p class="is-size-4">
-                ${latestValues['max']} ms
-            </p>
-            <p class="is-uppercase is-size-6 has-text-grey">Max</p>
-        </div>
-        <div class="column has-text-centered">
-            <p class="is-size-4
-                    % if latestValues['loss']==100:
-                        has-text-danger
-                    % elif latestValues['loss']>0:
-                        has-text-warning
-                    % else:
-                        has-text-success
-                    % endif
-                ">
-                ${latestValues['loss']}%
-            </p>
-            <p class="is-uppercase is-size-6 has-text-grey">Loss</p>
+            </div>
         </div>
     </div>
 </%def>
 
 <%page cached="False"/>
 
-<div class="columns">
-    <div class="column">
-        <div class="distping-page" id="overview-page">
-            <h1 class="title">Overview</h1>
-            <nav class="level">
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Online</p>
-                        <p class="title has-text-success">
-                            <i class="fa fa-check-circle"></i>
-                            <span class="counter-targets-online">${statusNumbers['online']}</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Unstable</p>
-                        <p class="title has-text-warning">
-                            <i class="fa fa-exclamation-circle"></i>
-                            <span class="counter-targets-unstable">${statusNumbers['unstable']}</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Offline</p>
-                        <p class="title has-text-danger">
-                            <i class="fa fa-times-circle"></i>
-                            <span class="counter-targets-offline">${statusNumbers['offline']}</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                      <p class="heading">Observers</p>
-                      <p class="title has-text-info">
-                          <i class="fa fa-user-secret"></i>
-                          <span class="counter-observers">
-                              ${observerConnections['connected']} / ${observerConnections['total']}
-                          </span>
-                      </p>
-                    </div>
-                </div>
-            </nav>
-            
-            <div class="targets-list">
-                % for category in targets:
-                    ${drawCategory(category)}
-                % endfor
-            </div>
-        </div>
-    </div>
+<div class="container-xl">
+    % for category in targets:
+        ${drawCategory(category)}
+    % endfor
 </div>
+
+<%block name="javascripts">
+    <script>
+        $(document).ready(function () {
+            distPingInitializeWebsocket('ws', '${webIpAddress}:${webPort}', function (message) {
+                if (message.type === 'status-update') {
+                    updateStatus(message);
+                } else if (message.type === 'observer-count-update') {
+                    updateObserverCount(message);
+                }
+            });
+        });
+    </script>
+</%block>
