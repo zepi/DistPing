@@ -109,17 +109,40 @@ function updateStatus(message)
 
     let chart = el.find('.target-chart').data('chart');
     if (chart) {
+        let seriesData = el.find('.target-chart').data('seriesData');
+        if (!seriesData) {
+            seriesData = [];
+        }
+
+        seriesData.push([Date.now(), parseFloat(chartTime)]);
+        let oldLength = seriesData.length;
+        seriesData = filterSeriesData(seriesData);
+        el.find('.target-chart').data('seriesData', seriesData);
+
+        let minDate = (new Date()).getTime() - (5 * 60 * 1000);
+        if (oldLength > seriesData.length) {
+            minDate = seriesData[0][0];
+        }
+
         chart.updateOptions({
             xaxis: {
-                min: Date.now() - (5 * 60 * 1000)
-            }
+                min: minDate
+            },
+            series: [{
+                data: seriesData
+            }]
         });
-        chart.appendData([{
-            data: [[Date.now(), parseFloat(chartTime)]]
-        }]);
     }
 
     updateSummaryCounter();
+}
+
+function filterSeriesData(seriesData)
+{
+    let maxTime = (new Date()).getTime() - (((5 * 60) + 5) * 1000);
+    seriesData = seriesData.filter(dataItem => dataItem[0] > maxTime);
+
+    return seriesData;
 }
 
 function updateObserverCount(message)

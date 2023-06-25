@@ -162,6 +162,7 @@
                     xaxis: {
                         labels: {
                             padding: 0,
+                            datetimeUTC: false
                         },
                         tooltip: {
                             enabled: false
@@ -170,7 +171,7 @@
                             show: false,
                         },
                         type: 'datetime',
-                        min: Date.now() - (5 * 60 * 1000)
+                        min: (new Date()).getTime() - (5 * 60 * 1000)
                     },
                     yaxis: {
                         min: 0,
