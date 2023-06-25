@@ -92,6 +92,7 @@
                     </div>
                 % endif
             </div>
+            <div class="target-chart chart-sm" style="min-height: 40px;"></div>
         </div>
     </div>
 </%def>
@@ -105,6 +106,7 @@
 </div>
 
 <%block name="javascripts">
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta19/dist/libs/apexcharts/dist/apexcharts.min.js" defer></script>
     <script>
         $(document).ready(function () {
             distPingInitializeWebsocket('ws', '${webIpAddress}:${webPort}', function (message) {
@@ -113,6 +115,77 @@
                 } else if (message.type === 'observer-count-update') {
                     updateObserverCount(message);
                 }
+            });
+
+            $('.target-chart').each(function () {
+                let chart = new ApexCharts($(this)[0], {
+                    chart: {
+                        type: "area",
+                        fontFamily: 'inherit',
+                        height: 40.0,
+                        parentHeightOffset: 15,
+                        sparkline: {
+                            enabled: true
+                        },
+                        animations: {
+                            enabled: false
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false,
+                    },
+                    fill: {
+                        opacity: .16,
+                        type: 'solid'
+                    },
+                    stroke: {
+                        width: 2,
+                        lineCap: "round",
+                        curve: "smooth",
+                    },
+                    series: [{
+                        name: "Time",
+                        data: []
+                    }],
+                    tooltip: {
+                        theme: 'dark',
+                        x: {
+                            format: 'HH:mm:ss'
+                        }
+                    },
+                    grid: {
+                        strokeDashArray: 4,
+                        padding: {
+                            top: 5,
+                        }
+                    },
+                    xaxis: {
+                        labels: {
+                            padding: 0,
+                        },
+                        tooltip: {
+                            enabled: false
+                        },
+                        axisBorder: {
+                            show: false,
+                        },
+                        type: 'datetime',
+                        min: Date.now() - (5 * 60 * 1000)
+                    },
+                    yaxis: {
+                        min: 0,
+                        labels: {
+                            padding: 4
+                        },
+                    },
+                    colors: [tabler.getColor("primary")],
+                    legend: {
+                        show: false,
+                    },
+                });
+                chart.render();
+
+                $(this).data('chart', chart);
             });
         });
     </script>

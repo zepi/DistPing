@@ -73,6 +73,7 @@ function updateStatus(message)
         icon.addClass('ti-help-octagon text-secondary');
     }
 
+    let chartTime = null
     if (el.find('.ping-avg-value').length) {
         if (message.data.avg > 0) {
             el.find('.ping-min-value').text(message.data.min + ' ms');
@@ -86,6 +87,8 @@ function updateStatus(message)
             } else if (message.data.loss > 0) {
                 el.find('.ping-loss-value').addClass('text-warning status-important');
             }
+
+            chartTime = message.data.avg;
         } else {
             el.find('.ping-min-value').text('n/a');
             el.find('.ping-avg-value').text('n/a');
@@ -97,9 +100,23 @@ function updateStatus(message)
     if (el.find('.request-time-value').length) {
         if (message.data.time > 0) {
             el.find('.request-time-value').text(message.data.time + ' ms');
+
+            chartTime = message.data.time;
         } else {
             el.find('.request-time-value').text('n/a');
         }
+    }
+
+    let chart = el.find('.target-chart').data('chart');
+    if (chart) {
+        chart.updateOptions({
+            xaxis: {
+                min: Date.now() - (5 * 60 * 1000)
+            }
+        });
+        chart.appendData([{
+            data: [[Date.now(), parseFloat(chartTime)]]
+        }]);
     }
 
     updateSummaryCounter();
